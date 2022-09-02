@@ -15,12 +15,18 @@ class DdkApplicationStack(BaseStack):
         super().__init__(scope, id, environment_id, **kwargs)
 
         # The code that defines your stack goes here. For example:
-        ddk_bucket = S3Factory.bucket(
-            self,
-            "ddk-bucket",
-            environment_id,
-            event_bridge_enabled=True,
-        )
+#         ddk_bucket = S3Factory.bucket(
+#             self,
+#             "ddk-bucket",
+#             environment_id,
+#             event_bridge_enabled=True,
+#         )
+        
+         ddk_bucket = aws_s3.Bucket(
+             self,
+             "ddk-bucket",
+             event_bridge_enabled=True,
+         )
 
         firehose_s3_stage = KinesisToS3Stage(
             self,
@@ -35,13 +41,13 @@ class DdkApplicationStack(BaseStack):
             environment_id=environment_id,
             code=Code.from_asset("./lambda"),
             handler="index.lambda_handler",
-            layers=[
-                LayerVersion.from_layer_version_arn(
-                    self,
-                    "ddk-lambda-layer-wrangler",
-                    f"arn:aws:lambda:{self.region}:336392948345:layer:AWSDataWrangler-Python39:2",
-                )
-            ]
+#             layers=[
+#                 LayerVersion.from_layer_version_arn(
+#                     self,
+#                     "ddk-lambda-layer-wrangler",
+#                     f"arn:aws:lambda:{self.region}:336392948345:layer:AWSDataWrangler-Python39:2",
+#                 )
+#             ]
         )
         ddk_bucket.grant_read_write(sqs_lambda_stage.function)
 
